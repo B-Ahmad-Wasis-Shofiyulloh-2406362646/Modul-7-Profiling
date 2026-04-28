@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author muhammad.khadafi
@@ -13,4 +14,7 @@ import java.util.List;
 public interface StudentRepository extends JpaRepository<Student, Long> {
     @Query("select s.name from Student s")
     List<String> findAllNames();
+
+    @Query("select s from Student s where s.gpa = (select max(s2.gpa) from Student s2)")
+    Optional<Student> findStudentWithHighestGpaByQuery();
 }
