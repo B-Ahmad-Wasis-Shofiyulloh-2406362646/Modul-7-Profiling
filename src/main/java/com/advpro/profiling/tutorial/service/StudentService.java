@@ -42,16 +42,11 @@ public class StudentService {
     }
 
     public String joinStudentNames() {
-        List<Student> students = studentRepository.findAll();
-        if (students.isEmpty()) {
+        List<String> names = studentRepository.findAllNames();
+        if (names.isEmpty()) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
-        for (Student student : students) {
-            sb.append(student.getName()).append(", ");
-        }
-        sb.setLength(sb.length() - 2); // remove trailing ", "
-        return sb.toString();
+        return String.join(", ", names);
     }
 }
 
