@@ -30,7 +30,9 @@ public class StudentService {
 
     public Optional<Student> findStudentWithHighestGpa() {
         // Use a database query with MAX aggregation to find highest GPA student
-        return studentRepository.findStudentWithHighestGpaByQuery();
+        // Returns only the first student (by ID) when multiple students share the highest GPA
+        List<Student> students = studentRepository.findStudentWithHighestGpaByQuery();
+        return students.isEmpty() ? Optional.empty() : Optional.of(students.get(0));
     }
 
     public String joinStudentNames() {
