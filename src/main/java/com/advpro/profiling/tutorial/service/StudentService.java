@@ -24,40 +24,23 @@ public class StudentService {
     private StudentCourseRepository studentCourseRepository;
 
     public List<StudentCourse> getAllStudentsWithCourses() {
-        List<Student> students = studentRepository.findAll();
-        List<StudentCourse> studentCourses = new ArrayList<>();
-        for (Student student : students) {
-            List<StudentCourse> studentCoursesByStudent = studentCourseRepository.findByStudentId(student.getId());
-            for (StudentCourse studentCourseByStudent : studentCoursesByStudent) {
-                StudentCourse studentCourse = new StudentCourse();
-                studentCourse.setStudent(student);
-                studentCourse.setCourse(studentCourseByStudent.getCourse());
-                studentCourses.add(studentCourse);
-            }
-        }
-        return studentCourses;
+        // Use a single fetch-join query to avoid N+1 database queries
+        return studentCourseRepository.findAllWithStudentAndCourse();
     }
 
     public Optional<Student> findStudentWithHighestGpa() {
-        List<Student> students = studentRepository.findAll();
-        Student highestGpaStudent = null;
-        double highestGpa = 0.0;
-        for (Student student : students) {
-            if (student.getGpa() > highestGpa) {
-                highestGpa = student.getGpa();
-                highestGpaStudent = student;
-            }
-        }
-        return Optional.ofNullable(highestGpaStudent);
+        // Use a database query with MAX aggregation to find highest GPA student
+        // Returns only the first student (by ID) when multiple students share the highest GPA
+        List<Student> students = studentRepository.findStudentWithHighestGpaByQuery();
+        return students.isEmpty() ? Optional.empty() : Optional.of(students.get(0));
     }
 
     public String joinStudentNames() {
-        List<Student> students = studentRepository.findAll();
-        String result = "";
-        for (Student student : students) {
-            result += student.getName() + ", ";
+        List<String> names = studentRepository.findAllNames();
+        if (names.isEmpty()) {
+            return "";
         }
-        return result.substring(0, result.length() - 2);
+        return String.join(", ", names);
     }
 }
 
